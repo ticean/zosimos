@@ -1,12 +1,17 @@
 (ns ^:figwheel-always zosimos.core
-    (:require))
+    (:require
+      [om.core :as om]
+      [om-tools.core :refer-macros [defcomponent]]
+      [om-tools.dom :as dom :include-macros true]
+      [sablono.core :as html :refer-macros [html]]))
 
 (enable-console-print!)
 
-(println "Edits to this text should show up in your developer console.")
-
-;; define your app data so that it doesn't get over-written on reload
-
 (defonce app-state (atom {:text "Hello world!"}))
 
+(defcomponent app [data owner]
+  (render [_]
+    (html [:div (:text data)])))
 
+(om/root app @app-state
+  {:target (. js/document (getElementById "app"))})
