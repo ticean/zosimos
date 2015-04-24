@@ -10,14 +10,19 @@
 (defonce app-state
   (atom
     {:meta {}
-     :components [{:type :test1}
-                  {:type :test2}]}))
+     :components [{:type :form}
+                  {:type :image}
+                  {:type :content}
+                  {:type :embedly}
+                  {:type :iframe}
+                  {:type :facebook-like-button}]}))
 
 (defcomponent widget
   "The most basic feature component that can be added to a layout."
   [data owner]
   (render [_]
-    (html [:div (str "Widget " (:type data))])))
+    (html [:div.widget {:class (name (:type data))}
+             (str "Widget " (:type data))])))
 
 (defcomponent app
   "The main application component."
