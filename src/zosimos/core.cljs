@@ -7,11 +7,25 @@
 
 (enable-console-print!)
 
-(defonce app-state (atom {:text "Hello world!"}))
+(defonce app-state
+  (atom
+    {:meta {}
+     :components [{:type :test1}
+                  {:type :test2}]}))
 
-(defcomponent app [data owner]
+(defcomponent widget
+  "The most basic feature component that can be added to a layout."
+  [data owner]
   (render [_]
-    (html [:div (:text data)])))
+    (html [:div (str "Widget " (:type data))])))
+
+(defcomponent app
+  "The main application component."
+  [data owner]
+  (render [_]
+    (html
+      [:div {:class "content"}
+       (om/build-all widget (:components data))])))
 
 (om/root app @app-state
   {:target (. js/document (getElementById "app"))})
