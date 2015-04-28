@@ -1,0 +1,52 @@
+.om-grid-layout {
+  position: relative;
+  transition: height 200ms ease;
+}
+.om-grid-item {
+  transition: all 200ms ease;
+  transition-property: left, top;
+}
+.om-grid-item.cssTransforms {
+  transition-property: transform;
+}
+.om-grid-item.resizing {
+  z-index: 1;
+}
+.om-grid-placeholder {
+  background: red;
+  opacity: 0.2;
+  transition-duration: 100ms;
+  z-index: 2;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+.om-grid-item.om-draggable-dragging {
+  transition: none;
+  z-index: 3;
+}
+.om-draggable {
+  position: relative;
+}
+.om-draggable-active {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+.om-grid-resize-handle {
+  position: absolute;
+  opacity: 0;
+  width: 20px;
+  height: 20px;
+  line-height: 28px;
+  font-size: 20px;
+  text-align: right;
+  cursor: se-resize;
+}
+.om-grid-item:hover .om-grid-resize-handle {
+  opacity: 1;
+}
