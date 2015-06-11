@@ -3,6 +3,7 @@
   transition: height 200ms ease;
 }
 .om-grid-item {
+  border: 1px solid green;
   transition: all 200ms ease;
   transition-property: left, top;
 }

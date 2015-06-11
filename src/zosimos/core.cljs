@@ -3,7 +3,8 @@
       [om.core :as om]
       [om-tools.core :refer-macros [defcomponent defcomponentmethod]]
       [om-tools.dom :as dom :include-macros true]
-      [sablono.core :as html :refer-macros [html]]))
+      [sablono.core :as html :refer-macros [html]]
+      [zosimos.om-grid :as grid]))
 
 (enable-console-print!)
 
@@ -12,7 +13,8 @@
     {:dev {:render-mode "grid"}
      :meta {}
      :layout {:autosize true
-              :cols 12
+              :columns 12
+              :container-width 1080
               :margin [10 10]
               :row-height 150
               :draggable? true
@@ -21,52 +23,42 @@
               :draggable-cancel "no-draggable"
               :draggable-handle "draggable"
               :children [
-                {:child-data {:type :title
-                              :id 1
-                              :user-data
-                              {:title "Page Title"}}
-                 :x 1
-                 :y 1
-                 :w 1
-                 :h 1}
-               {:child-data {:type :content
-                             :id 2
-                             :user-data
-                             {:content "This is user content."}}
-                 :x 1
-                 :y 1
-                 :w 1
-                 :h 1}]}
-
-     ; Non-grid data model.
-     :components [{:type :title
-                   :id 1
-                   :user-data
-                   {:title "Page Title"}}
-                  {:type :content
-                   :id 2
-                   :user-data
-                   {:content "This is user content."}}
-                  {:type :image
-                   :id 3
-                   :user-data
-                   {:src "https://www.dropbox.com/s/0q37qjigyxtaofh/Screenshot%202015-04-24%2000.12.54.png?dl=1"
-                    :alt "Monkey business"}}
-                  {:type :embedly
-                   :id 4
-                   :user-data nil}
-                  {:type :iframe
-                   :id 5
-                   :user-data
-                   {:src "http://www.promojam.com"
-                    :width "600px"
-                    :height "200px"}}
-                  {:type :facebook-like-button
-                   :id 7
-                   :user-data nil}
-                  {:type :form
-                   :id 8
-                   :user-data nil}]}))
+                ; Row 0
+                {:x 0 :y 0 :w 12 :h 1
+                 :child-data {:id 1
+                              :type :title
+                              :user-data {:title "Page Title"}}}
+                ; Row 1-2
+                {:x 0 :y 1 :w 6 :h 2
+                 :child-data {:id 2
+                              :type :content
+                              :user-data {:content "Item 1"}}}
+                {:x 6 :y 1 :w 6 :h 2
+                 :child-data {:id 3
+                              :type :image
+                              :user-data {:src "https://i.imgur.com/pA1tRuV.gif"
+                                          :alt "Sniff sniff"}}}
+                ; Row 3
+                {:x 0 :y 3 :w 6 :h 1
+                 :child-data {:id 4
+                              :type :embedly
+                              :user-data nil}}
+                {:x 6 :y 3 :w 6 :h 1
+                 :child-data {:id 5
+                              :type :facebook-like-button
+                              :user-data nil}}
+                ; Row 4-6
+                {:x 0 :y 4 :w 12 :h 3
+                 :child-data {:id 6
+                              :type :iframe
+                              :user-data {:src "http://imgur.com/"
+                                          :width 1060
+                                          :height 440}}}
+                ; Row 7
+                {:x 0 :y 7 :w 12 :h 1
+                 :child-data {:id 7
+                              :type :form
+                              :user-data nil}}]}}))
 
 
 ;; ============================
@@ -99,8 +91,9 @@
 (defcomponentmethod widget :iframe
   [data owner]
   (render [_]
+    (let [{:keys [src width height]} (:user-data data)]
     (html [:div.widget.image-widget
-           [:iframe {:src (-> data :user-data :src)}]])))
+           [:iframe {:src src :width width :height height}]]))))
 
 (defcomponentmethod widget :default
   [data owner]
@@ -122,7 +115,8 @@
 (def om-grid-layout-default-props
   {:autosize true
    :children []
-   :cols 12
+   :columns 12
+   :container-width 1080
    :draggable-cancel "no-draggable"
    :draggable-handle "draggable"
    :margin [10 10]
@@ -132,32 +126,28 @@
    :use-css-transforms? true})
 
 (def om-grid-item-default-props
-  {:child nil
-   :columns: 1
-   :container-width 400
-   :row-height 150
-   :margin [10 10]
+  {:child-data nil
    :x 1
    :y 1
    :w 1
-   :h 1
-   :cancel ""
-   :draggable? true
-   :resizable? true
-   :use-css-transforms? true})
+   :h 1})
 
 (defcomponent om-grid-item
   "TODO: Inject grid item component dependency!"
-  [{:keys [child-data x y w h] :as data} owner]
+  [{:keys [layout-data item] :as data} owner]
   (render [_]
-    (html [:div.om-grid-item (om/build widget child-data)])))
+    (let [style (into (grid/calc-position data) {:position "absolute"})]
+      (html [:div.om-grid-item {:style style}
+             (om/build widget (:child-data item))]))))
 
 (defcomponent om-grid-layout
   "Super magic funtime grid."
   [{:keys [children] :as data} owner]
   (render [_]
+    (let [layout-config {:layout-config (dissoc data :children)}
+          items (map #(into layout-config {:item %}) children)]
     (html [:div.om-grid-layout
-           (om/build-all om-grid-item children)])))
+      (om/build-all om-grid-item items)]))))
 
 
 
